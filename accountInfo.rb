@@ -7,89 +7,66 @@
 # get friends list of a user and their info
 # found a way to get from steamid to display names (the gem's methods were oddly slow)
 
-
-require 'json'
-require 'steam_web_api'
-
-apikey = 'steamdev-api-key-here'  # steam app api key
-pkey = '76561198017058828'        # steamid of a user
-steamVanityNames = []
-ownedAppIDs = []
-steamIdKeys = ''
+load 'user.rb'
 
 
-# Faraday undefined -> check api keys
-#### https://github.com/lostisland/faraday
-conn = Faraday.new(:url => 'http://api.steampowered.com/') do |faraday|
-  faraday.request  :url_encoded                          # form-encode POST params
-  #faraday.response :logger                              # log requests to STDOUT
-  faraday.headers['Content-Type'] = 'application/json'   # set the content type to JSON
-  faraday.adapter  Faraday.default_adapter               # make requests with Net::HTTP
-end
+
+def main
+
+	apikey      = 'steamdev-api-key-here'  # steam app api key
+	pID         = '76561198017058828'        # steamid of a user
 
 
-# for Rails, you can put this code in initializer: 
-# config/initializers/steam_web_api.rb
-SteamWebApi.configure do |config|
-    config.api_key = apikey
-end
+	# Faraday undefined -> check api keys
+	#### https://github.com/lostisland/faraday
+	$conn = Faraday.new(:url => 'http://api.steampowered.com/') do |faraday|
+	  faraday.request  :url_encoded                          # form-encode POST params
+	  #faraday.response :logger                              # log requests to STDOUT
+	  faraday.headers['Content-Type'] = 'application/json'   # set the content type to JSON
+	  faraday.adapter  Faraday.default_adapter               # make requests with Net::HTTP
+	end
 
-# get the same games a user has
-# with the original user
-def getSharedGames(plyr, uname)
-	puts('global games: ')
-	puts(plyr.owned_games)
+
+	# for Rails, you can put this code in initializer: 
+	# config/initializers/steam_web_api.rb
+	SteamWebApi.configure do |config|
+	    config.api_key = apikey
+	end
+
+
+
+
+
+
+	# query for the chosen user's info (based on community id)
+	usr = User.new()
+	mainPlayer = SteamWebApi::Player.new(pID)
+	mainFriendIDstr = usr.getFriendIDs(mainPlayer)
+	mainPlayerFriends = usr.getFriendVanities(apikey, pID, mainFriendIDstr)
+	# owned_games has optional arguments
+	data = mainPlayer.owned_games(include_played_free_games: true, include_appinfo: true)
+	puts('username: ' + mainPlayer.summary.profile['personaname'])
+
+
+	ownedAppIDs = usr.getAllOwned(mainPlayer)
 	puts()
-	puts('games for: ' + uname)
-end
-
-# query for the chose user's info (based on community id)
-
-player = SteamWebApi::Player.new(pkey)
-data = player.owned_games
-# owned_games has additional options
-data = player.owned_games(include_played_free_games: true, include_appinfo: true)
-puts('username: ' + player.summary.profile['personaname'])
-
-# take the string of all steamids from friends list
-# query the steam api for their display names
-player.friends.friends.each { |friend| 
-	steamIdKeys += friend['steamid'] + ','
-}
+	#puts('owned')
+	#puts(ownedAppIDs)
+	#puts('done owned')
 
 
-# hash of owned game data with array of games
-# separate out the app IDs of games owned for usage
-player.owned_games.games.each { |game|
-	ownedAppIDs.push(game['appid'])
-}
-puts()
-puts('sorted owned')
-puts(ownedAppIDs)
-puts('done owned')
-
-response = conn.get 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' + apikey + '&steamids=' + steamIdKeys
-JSON.parse(response.body)['response']['players'].each { |friend|
-	steamVanityNames.push(friend['personaname'])
-}
+	# visually confirm the two counts are the same
+	puts('      nSteamid len: ' + mainPlayer.friends.friends.count.to_s)
+	puts('nDisplay names len: ' + mainPlayerFriends.count.to_s)
+	puts
+	puts 'done'
 
 
+	## get the games that both chosen users have
+	#usr.getSharedGames(mainPlayer, "matt")
 
-
-
-
-
-
-# visually confirm the two counts are the same
-puts('      nSteamid len: ' + player.friends.friends.count.to_s)
-puts('nDisplay names len: ' + steamVanityNames.count.to_s)
-puts
-puts 'done'
-
-
-
-getSharedGames(player, "chris")
-
+end # end main
+main
 
 
 
