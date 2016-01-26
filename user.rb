@@ -51,22 +51,53 @@ class User
 	end
 
 
+	#take in the app IDs and return a hash of {id => name}...
+	def getGameNams(idArr)
+		puts(idArr)
+
+	end
+
+
 	# get the same games a user has
 	# with the original user
-	# compare lists...
-	# need to get the list of the second user...
-	def getSharedGames(user, uid)
+	def getSharedGames(first, second)
+		@same = [] # the compared games that both users have
 		puts()
-		puts('games for: ' + uid)
-		newP = SteamWebApi::Player.new(uid)
-		newPgames = getAllOwned(newP)
-		mainGames = getAllOwned(user)
-		@same = []
-		if (newPgames.count.to_s < mainGames.count.to_s)
-			# compare every new user game against old
+		puts('[I] shared games for: ' + first.to_s + ' and ' + second.to_s)
+
+		secP = SteamWebApi::Player.new(second)
+		firP = SteamWebApi::Player.new(first)
+		mainGames = getAllOwned(firP)
+		newPgames = getAllOwned(secP)
+		puts('[I] new size: ' + newPgames.size.to_s)
+		puts('[I] old size: ' + mainGames.size.to_s)
+
+		# need to find the ruby-esque way of doing this
+		# emun.detect or enum.find_all/find_index?
+		# grep/grep_v?
+		if (newPgames.size < mainGames.size)
+			puts('[I] new < old')
+			newPgames.each { |first|
+				mainGames.each { |second|
+					if (second == first)
+						@same.push(second)
+						break
+					end
+				}
+			}
 		else
-			# compare every old with new
-		end # if block
+			puts('[I] old < new')
+			mainGames.each { |first|
+				newPgames.each { |second|
+					if (second == first)
+						@same.push(second)
+						break
+					end
+				}
+			}
+		end
+		puts('[I] nSame: ' + @same.size.to_s)
+		puts()
 		return @same
 	end
 

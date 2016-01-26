@@ -55,14 +55,14 @@ def main
 
 
 	# visually confirm the two counts are the same
-	puts('      nSteamid len: ' + mainPlayer.friends.friends.count.to_s)
-	puts('nDisplay names len: ' + mainPlayerFriends.count.to_s)
+	puts('      nSteamid len: ' + mainPlayer.friends.friends.size.to_s)
+	puts('nDisplay names len: ' + mainPlayerFriends.size.to_s)
 	puts
 	puts 'done'
 
 
 	## get the games that both chosen users have
-	usr.getSharedGames(mainPlayer, mainFriendIDarr[0])
+	usr.getSharedGames(pID, mainFriendIDarr[0])
 
 end # end main
 main
