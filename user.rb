@@ -44,7 +44,7 @@ class User
 	# separate out the app IDs of games owned for usage
 	def getAllOwned(user)
 		@owned = []
-		user.owned_games.games.each { |game|
+		user.owned_games(include_played_free_games: true, include_appinfo: true).games.each { |game|
 			@owned.push(game['appid'])
 		}
 		return @owned
@@ -55,9 +55,19 @@ class User
 	# with the original user
 	# compare lists...
 	# need to get the list of the second user...
-	def getSharedGames(user, uname)
+	def getSharedGames(user, uid)
 		puts()
-		puts('games for: ' + uname)
+		puts('games for: ' + uid)
+		newP = SteamWebApi::Player.new(uid)
+		newPgames = getAllOwned(newP)
+		mainGames = getAllOwned(user)
+		@same = []
+		if (newPgames.count.to_s < mainGames.count.to_s)
+			# compare every new user game against old
+		else
+			# compare every old with new
+		end # if block
+		return @same
 	end
 
 

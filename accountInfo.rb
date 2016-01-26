@@ -13,8 +13,8 @@ load 'user.rb'
 
 def main
 
-	apikey      = 'steamdev-api-key-here'  # steam app api key
-	pID         = '76561198017058828'        # steamid of a user
+	apikey = 'steamdev-api-key-here'  # steam app api key
+	pID    = '76561198017058828'        # steamid of a user
 
 
 	# Faraday undefined -> check api keys
@@ -36,12 +36,11 @@ def main
 
 
 
-
-
 	# query for the chosen user's info (based on community id)
 	usr = User.new()
 	mainPlayer = SteamWebApi::Player.new(pID)
 	mainFriendIDstr = usr.getFriendIDs(mainPlayer)
+	mainFriendIDarr = mainFriendIDstr.split(",")
 	mainPlayerFriends = usr.getFriendVanities(apikey, pID, mainFriendIDstr)
 	# owned_games has optional arguments
 	data = mainPlayer.owned_games(include_played_free_games: true, include_appinfo: true)
@@ -63,7 +62,7 @@ def main
 
 
 	## get the games that both chosen users have
-	#usr.getSharedGames(mainPlayer, "matt")
+	usr.getSharedGames(mainPlayer, mainFriendIDarr[0])
 
 end # end main
 main
