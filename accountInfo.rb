@@ -4,8 +4,8 @@
 #Steam.apikey = key
 #puts Steam::Player.steam_level(pkey)
 
-# get friends list of a user and their info
-# found a way to get from steamid to display names (the gem's methods were oddly slow)
+# get friends list of a user and their info and compare owned games between friends
+# TODO -- add achievement comparison functions similar to games
 
 load 'user.rb'
 
@@ -38,33 +38,22 @@ def main
 
 	# query for the chosen user's info (based on community id)
 	usr = User.new()
-	mainPlayer = SteamWebApi::Player.new(pID)
-	mainFriendIDstr = usr.getFriendIDs(mainPlayer)
-	mainFriendIDarr = mainFriendIDstr.split(",")
-	mainPlayerFriends = usr.getFriendVanities(apikey, pID, mainFriendIDstr)
-	# owned_games has optional arguments
-	data = mainPlayer.owned_games(include_played_free_games: true, include_appinfo: true)
-	puts('username: ' + mainPlayer.summary.profile['personaname'])
-
-
-	ownedAppIDs = usr.getAllOwned(mainPlayer)
+	mainP = usr.getUser(pID)
+	mainPfriendstr = usr.getFriendIDs(mainP)
+	mainFriendIDs = mainPfriendstr.split(",")
+	mainPFriends = usr.getFriendPersonas(apikey, pID, mainPfriendstr)
+	puts('username: ' + mainP.summary.profile['personaname'])
+	# visually confirm the two counts are the same, id and persona
+	puts('      nSteamid len: ' + mainP.friends.friends.size.to_s)
+	puts('nDisplay names len: ' + mainPFriends.size.to_s)
 	puts()
-	#puts('owned')
-	#puts(ownedAppIDs)
-	#puts('done owned')
-
-
-	# visually confirm the two counts are the same
-	puts('      nSteamid len: ' + mainPlayer.friends.friends.size.to_s)
-	puts('nDisplay names len: ' + mainPlayerFriends.size.to_s)
-	puts
-	puts 'done'
-
-
-	## get the games that both chosen users have
-	usr.getSharedGames(pID, mainFriendIDarr[0])
-
+	puts('done')
+	## get the games that three chosen users have in common
+	shared = usr.getSharedGames(pID, mainFriendIDs[5])##mainFriendIDs)
+	thirdP = usr.getAllOwned(usr.getUser(mainFriendIDs[1]))
+	sharedThird = usr.compareGames(shared, thirdP)
 end # end main
+
 main
 
 
@@ -81,7 +70,7 @@ main
 2.2.3 :010 > player.methods
 
 
-the methods available to a player object:
+-- the methods available to a player object  --
 
 [:steam_id, :steam_id=, :owned_games, :stats_for_game, :achievements, :summary, 
 	:friends, :recently_played_games, :playing_shared_game, :bans, :response, 
