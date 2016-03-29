@@ -38,20 +38,35 @@ def main
 
 	# query for the chosen user's info (based on community id)
 	usr = User.new()
-	mainP = usr.getUser(pID)
-	mainPfriendstr = usr.getFriendIDs(mainP)
-	mainFriendIDs = mainPfriendstr.split(",")
+	mainPlayer = usr.getUser(pID)
+	mainPfriendstr = usr.getFriendIDstr(mainPlayer)
+	mainFriendIDs = mainPfriendstr.split(',')
 	mainPFriends = usr.getFriendPersonas(apikey, pID, mainPfriendstr)
-	puts('username: ' + mainP.summary.profile['personaname'])
+	puts('username: ' + mainPlayer.summary.profile['personaname'])
 	# visually confirm the two counts are the same, id and persona
-	puts('      nSteamid len: ' + mainP.friends.friends.size.to_s)
-	puts('nDisplay names len: ' + mainPFriends.size.to_s)
-	puts()
-	puts('done')
+	puts('      nSteamid friends len: ' + mainPlayer.friends.friends.size.to_s)
+	puts('nDisplay names friends len: ' + mainPFriends.size.to_s)
+	puts('done converting friends list')
 	## get the games that three chosen users have in common
 	shared = usr.getSharedGames(pID, mainFriendIDs[5])##mainFriendIDs)
 	thirdP = usr.getAllOwned(usr.getUser(mainFriendIDs[1]))
 	sharedThird = usr.compareGames(shared, thirdP)
+	# compare first and third
+	orig = usr.compareGames(usr.getAllOwned(usr.getUser(pID)), thirdP)
+
+
+
+
+
+	# use dynamic player summary method
+	# https://github.com/sashiba/steam-web-api#get-accounts-summaries-for-list-of-players
+	puts()
+	usr.getAllFriendData(mainPlayer)
+
+
+
+
+
 end # end main
 
 main

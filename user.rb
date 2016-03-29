@@ -7,6 +7,8 @@ require 'steam_web_api'
 
 class User
 
+	### TODO -- make initializer with @vars and refactor
+
 	## take in the users community id and return their info
 	# def initialize(id)
 	# 	puts ('user initialized: ' + id)
@@ -15,21 +17,24 @@ class User
 	# 	return @user
 	# end
 	def initialize()
+		puts('[I] new player initialized')
 	end
 
 
 	# get the users steam information
 	# returns: steamwebapi player object
 	def getUser(pid)
-		puts('[I] getting user info for: ' + pid.to_s)
-		return SteamWebApi::Player.new(pid)
+		puts('[I] accessing user info for: ' + pid.to_s)
+		@player = SteamWebApi::Player.new(pid)
+		puts('[I] retrieved user info for: ' + @player.summary.profile['personaname'])
+		return @player
 	end
 
 
 	# take the string of all steamids from friends list
 	# make csv string for conversion with getFriendVanities()
 	# returns: csv string of friend IDs
-	def getFriendIDs(user)
+	def getFriendIDstr(user)
 		@friendStr = ''
 		puts('[I] getting friend IDs for: ' + user.summary.profile['personaname'])
 		user.friends.friends.each { |friend| 
@@ -80,7 +85,6 @@ class User
 	# returns: array of games both users have
 	def getSharedGames(firID, secID)###varArr)
 		@same = []
-		puts()
 		firP = getUser(firID)
 		puts('[I] getting shared games for: ' + firID.to_s + ' and friends')
 		# # take array of user IDs and make hash of ID => user info
@@ -95,7 +99,6 @@ class User
 		puts('[I] new size: ' + newPgames.size.to_s)
 		puts('[I] old size: ' + mainGames.size.to_s)
 		@same = compareGames(mainGames, newPgames)
-		puts()
 		return @same
 	end
 
@@ -137,6 +140,25 @@ class User
 	def getSharedAchievements(usrOne, usrTwo, gameArr)
 		puts('[I] getting shared achievements for users:')
 		puts('    and games:')
+	end
+
+
+	# The steam API method for player summaries is dynamic
+	# https://stackoverflow.com/questions/14958981/ruby-convert-array-into-function-arguments
+	# take in array of friend IDs, return hash of all friend data
+	def getAllFriendData(usr)
+		puts('[I] retrieving friend data for: ' + usr.summary.profile['personaname'])
+		friendArr = getFriendIDstr(usr).split(',')
+		@data = SteamWebApi::Player.summary(friendArr)
+		if (@data.success == true)
+			puts('[I] success')
+			return @data.players
+		end
+		puts('[!!] Failed getting all friend data')
+		puts()
+		puts(@data)
+		puts()
+		return Hash.new
 	end
 
 
