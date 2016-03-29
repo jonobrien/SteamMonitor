@@ -117,8 +117,7 @@ class User
 						@same.push(second)
 						break # break - found the game
 					end
-				}
-			}
+			}}
 		else
 			puts('[I] second < first')
 			secArr.each { |first|
@@ -127,8 +126,7 @@ class User
 						@same.push(second)
 						break # break - found the game
 					end
-				}
-			}
+			}}
 		end
 		puts('[I] nSame: ' + @same.size.to_s)
 		return @same
@@ -162,4 +160,4 @@ class User
 	end
 
 
-end # end class
+end
