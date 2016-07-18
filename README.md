@@ -1,6 +1,11 @@
 # Steam_Monitor
 Utilize the Steam API
-# Ideas
+
+- compare multiple friends games
+- compare multiple friends achievements for a game, currently steam only allows one friend for one game
+- utilized [this gem](https://github.com/Olgagr/steam-web-api)
+
+## Ideas
  - show user stats, basic info
  - all the graphs of all the things
  - choose a random game based on unplayed games or some comparison of stats
@@ -8,12 +13,10 @@ Utilize the Steam API
  - if accessible, money spent over time, related to sales
  - if accessible, amount actually spent and how many games on sale, %-wise
 
-- compare multiple friends achievements for a game, or multiple, steam only allows one friend for one game
- 
 
-- [ruby](https://github.com/Olgagr/steam-web-api) api wrapper
 
-# others 
+
+## others 
 - [Python](https://github.com/smiley/steamapi)
 - [Java](https://github.com/code-disaster/steamworks4j)
 - [NodeJS](https://github.com/Tidwell/nodeSteam)
