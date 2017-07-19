@@ -25,6 +25,7 @@ class User
 	# returns: steamwebapi player object
 	def getUser(pid)
 		puts('[I] accessing user info for: ' + pid.to_s)
+		# this seems computationaly heavy
 		@player = SteamWebApi::Player.new(pid)
 		puts('[I] retrieved user info for: ' + @player.summary.profile['personaname'])
 		return @player
@@ -63,10 +64,10 @@ class User
 	# separate out the app IDs of games owned for usage
 	# returns: array of games user owns/f2p played
 	def getAllOwned(user)
-		@owned = []
+		@owned = Hash.new
 		puts('[I] getting games for: ' + user.summary.profile['personaname'])
 		user.owned_games(include_played_free_games: true, include_appinfo: true).games.each { |game|
-			@owned.push(game['appid'])
+			@owned[game['appid']] = game['name']
 		}
 		return @owned
 	end
@@ -87,13 +88,13 @@ class User
 		@same = []
 		firP = getUser(firID)
 		puts('[I] getting shared games for: ' + firID.to_s + ' and friends')
-		# # take array of user IDs and make hash of ID => user info
+		# # TODO ?? -- take array of user IDs and make hash of ID => user info
 		# @users = {}
 		# varArr.each{ |userID|
 		# 	@usr = getUser(userID)
 		# 	@users[userID.to_s] = @usr
 		# }
-		secP = getUser(secID)###varArr[5])
+		secP = getUser(secID)
 		mainGames = getAllOwned(firP)
 		newPgames = getAllOwned(secP)
 		puts('[I] new size: ' + newPgames.size.to_s)
@@ -106,24 +107,26 @@ class User
 	# need to find the ruby-esque way of doing this
 	# emun.detect or enum.find_all/find_index?
 	# grep/grep_v?
-	def compareGames(firstArr, secArr)
-		@same = []
+	def compareGames(oneHash, twoHash)
+		firstArr = oneHash.keys
+		secArr = twoHash.keys
+		@same = Hash.new
 		puts('[I] comparing games...')
 		if (firstArr.size < secArr.size)
 			puts('[I] first < second')
 			firstArr.each { |first|
 				secArr.each { |second|
 					if (second == first)
-						@same.push(second)
+						@same[second] = twoHash[second]
 						break # break - found the game
 					end
-			}}
-		else
+		}}
+		else # only search the smaller of the two
 			puts('[I] second < first')
 			secArr.each { |first|
 				firstArr.each { |second|
 					if (second == first)
-						@same.push(second)
+						@same[second] = twoHash[second]
 						break # break - found the game
 					end
 			}}

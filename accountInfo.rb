@@ -1,11 +1,8 @@
-#require 'openssl'
-#require 'steam-api'
-#gem 'steam-api'
-#Steam.apikey = key
-#puts Steam::Player.steam_level(pkey)
 
 # get friends list of a user and their info and compare owned games between friends
-# TODO -- add achievement comparison functions similar to games
+
+
+# TODO -- add achievement comparison functions similar to games (user.rb)
 
 load 'user.rb'
 
@@ -38,21 +35,26 @@ def main
 
 	# query for the chosen user's info (based on community id)
 	usr = User.new()
-	mainPlayer = usr.getUser(pID)
-	mainPfriendstr = usr.getFriendIDstr(mainPlayer)
-	mainFriendIDs = mainPfriendstr.split(',')
-	mainPFriends = usr.getFriendPersonas(apikey, pID, mainPfriendstr)
-	puts('username: ' + mainPlayer.summary.profile['personaname'])
+	me = usr.getUser(pID)
+	myFriendStr = usr.getFriendIDstr(me)
+	myFriendIDs = myFriendStr.split(',')
+	myFriends = usr.getFriendPersonas(apikey, pID, myFriendStr)
+	puts('username: ' + me.summary.profile['personaname'])
 	# visually confirm the two counts are the same, id and persona
-	puts('      nSteamid friends len: ' + mainPlayer.friends.friends.size.to_s)
-	puts('nDisplay names friends len: ' + mainPFriends.size.to_s)
+	puts('      nSteamid friends len: ' + me.friends.friends.size.to_s)
+	puts('nDisplay names friends len: ' + myFriends.size.to_s)
 	puts('done converting friends list')
 	## get the games that three chosen users have in common
-	shared = usr.getSharedGames(pID, mainFriendIDs[5])##mainFriendIDs)
-	thirdP = usr.getAllOwned(usr.getUser(mainFriendIDs[1]))
-	sharedThird = usr.compareGames(shared, thirdP)
-	# compare first and third
-	orig = usr.compareGames(usr.getAllOwned(usr.getUser(pID)), thirdP)
+
+	# my games and another, TODO stdin list
+	sharedGames1n2 = usr.getSharedGames(pID, myFriendIDs[1])##myFriendIDs)
+	# get P3 games
+	thirdPlayerGames = usr.getAllOwned(usr.getUser(myFriendIDs[2]))
+	# compare 1,2,3 games
+	sharedThird = usr.compareGames(sharedGames1n2, thirdPlayerGames)
+	puts(sharedThird)
+	# compare just first and third
+	# orig = usr.compareGames(usr.getAllOwned(usr.getUser(pID)), sharedThird)
 
 
 
@@ -61,7 +63,7 @@ def main
 	# use dynamic player summary method
 	# https://github.com/sashiba/steam-web-api#get-accounts-summaries-for-list-of-players
 	puts()
-	usr.getAllFriendData(mainPlayer)
+	usr.getAllFriendData(me)
 
 
 
